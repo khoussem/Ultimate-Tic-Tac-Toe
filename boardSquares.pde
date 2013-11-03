@@ -5,4 +5,7 @@ class boardSquares {
   boardSquares() {
     //
   }
+  boolean isEmpty() {
+    return state == 0;
+  }
 }

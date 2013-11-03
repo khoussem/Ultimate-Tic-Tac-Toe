@@ -44,8 +44,7 @@ class biggerSquares
   //
   //
   //Tests all the cases for a win
-  int winCheckXY(int x, int y)
-  {
+  int winCheckXY(int x, int y) {
     if (x == 1) {
       if (boxes[x-1][y].state == boxes[x+1][y].state) return boxes[x+1][y].state;
       if (y == 1) {
@@ -138,6 +137,7 @@ class biggerSquares
       return 0;
     }
   }
+
   int arrayNumtosmallSquare(int x, int y)
   {
     if (number == 1 ) return x+1 + y*9;
@@ -160,5 +160,6 @@ class biggerSquares
       else if (state == 2) image(Oh, x+width/2, y+height/2, width, height);
     }
   }
+
 }
 

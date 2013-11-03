@@ -85,5 +85,8 @@ class smallestSquares
     if (state == 1) image(Ex, x+width/2, y+height/2, width, height);
     else if (state == 2) image(Oh, x+width/2, y+height/2, width, height);
   }
+  boolean isEmpty() {
+    return state == 0;
+  }
 }
 

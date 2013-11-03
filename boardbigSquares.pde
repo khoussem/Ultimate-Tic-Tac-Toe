@@ -112,4 +112,62 @@ int winCheck()
   }
   else return 2;
  }
+ int winCheckXY(int x, int y) {
+    if (x == 1) {
+      if (boxes[x-1][y].state == boxes[x+1][y].state) return boxes[x+1][y].state;
+      if (y == 1) {
+        if (boxes[x-1][y-1].state == boxes[x+1][y+1].state) return boxes[x+1][y+1].state;
+      }
+    }
+    if (x == 2) {
+      if (boxes[x-2][y].state == boxes[x-1][y].state) return boxes[x-2][y].state;
+      if (y == 0) {
+        if (boxes[x-2][y+2].state == boxes[x-1][y+1].state) return boxes[x-1][y+1].state;
+      }
+      if (y == 2) {
+        if (boxes[x-2][y-2].state == boxes[x-1][y-1].state) return boxes[x-1][y-1].state;
+      }
+    }
+    if (x == 0) {
+      if (boxes[x+2][y].state == boxes[x+1][y].state) return boxes[x+2][y].state;
+      if (y == 0) {
+        if (boxes[x+1][y+1].state == boxes[x+2][y+2].state) return boxes[x+1][y+1].state;
+      }
+      if (y == 2) {
+        if (boxes[x+1][y-1].state == boxes[x+2][y-2].state) return boxes[x+1][y-1].state;
+      }
+    }
+    if (y == 1) {
+      if (boxes[x][y-1].state == boxes[x][y+1].state) return boxes[x][y-1].state;
+    }
+    if (y == 2) {
+      if (boxes[x][y-2].state == boxes[x][y-1].state) return boxes[x][y-1].state;
+    }
+    if (y == 0) {
+      if (boxes[x][y+1].state == boxes[x][y+2].state) return boxes[x][y+1].state;
+    }
+    return 0;
+  }
+   public PVector canBeWon(int s) {
+    for(int i = 0; i < 3; i++) {
+      for(int j = 0; j < 3; j++) {
+        if(winCheckXY(i, j) == s) return new PVector(i, j);
+      }
+    }
+    return null;
+  }
+    int quotient(int n, int d) {
+    int ret = 0;
+    while(n > d) {
+        n -= d;
+        ret++;
+    }
+    return ret;
+  }
+  boolean isValid(int square) {
+    int x = square % 3;
+    int y = quotient(square, 3);
+    if(boxes[x][y].isEmpty()) return true;
+    return false;
+  }
 }

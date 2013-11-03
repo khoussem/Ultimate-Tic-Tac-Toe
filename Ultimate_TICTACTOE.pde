@@ -4,7 +4,7 @@
 // 1 2 3 //IMPORTANT!
 // 4 5 6 //THIS IS THE ORDERING FOR BOXES
 // 7 8 9 //ANY KIND OF BOX! except inside the actual box
-/////////// where its
+/////////// where its (in xy)
 // 00 10 20 //
 // 01 11 21 //
 // 02 12 22 //
@@ -49,7 +49,7 @@ boolean changeMade; //memory saver so winUpdater is only called
 //after a change
 int smallChanged=0; //holds the value of the small changed
 int bigChanged=0; //An important variable, that tells the main
-//what box has been changed so it canbe updated with new values
+//what box has been changed so it can be updated with new values
 //for its littleSquare states
 int stateChangedto; //Holds the state of the variable change
 int gameState; //if != 0, game is won
@@ -192,6 +192,7 @@ void setup()
 //taking in a number input
 int findMy2dArrayValueX(int n)
 {
+  println("N: " + n);
   if (n%9 == 0) return 2;
   if ((n - (quotientForme(n, 9) -1) * 9)/8 == 1) return 1;
   if ((n - (quotientForme(n, 9) -1) * 9)/7 == 1) return 0;
@@ -203,9 +204,6 @@ int findMy2dArrayValueX(int n)
   return 0;
 }
 //finds the vertical value
-//tried to use recursion,
-//lets see if it works?
-//Jk not neccesary...
 int findMy2dArrayValueY(int n)
 {
   //J is a temp variable
@@ -865,14 +863,28 @@ void draw()
   if (!menu)
   {
     //START OF TIC TAC TOE CODE
-    if (thinking == false && turn == 2 && computer) {
+    if (turn == 2 && computer) {
       thinking = true; //Need this so .start() is only called once
       //
+      if(thread2 == null) {
       //thread1.run();
-      thread2 = new BrainThread2(board);
-      thread2.run();
+        println("PreDrawing");
+      thread2 = new BrainThread2(board, bigSquarenow);
+      thread2.start();
+      } else {
+          if(!thread2.running()) {
+              smallChanged = thread2.smallChanged;
+              bigChanged = thread2.bigChanged;
+              changeMade = true;
+              stateChangedto = thread2.stateChangedTo;
+              winUpdater();
+              thread2 = null;
+              turn = 1;
+              thinking = false;
+          }
+      }
     } 
-    else  if (!thinking) {
+    else { //if (!thinking) {
       stroke(0);
       //Function that builds board
       buildSmallSquares();
