@@ -873,13 +873,7 @@ void draw()
       thread2.start();
       } else {
           if(!thread2.running()) {
-              smallChanged = thread2.smallChanged;
-              bigChanged = thread2.bigChanged;
-              changeMade = true;
-              stateChangedto = thread2.stateChangedTo;
-              winUpdater();
               thread2 = null;
-              turn = 1;
               thinking = false;
           }
       }

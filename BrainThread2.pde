@@ -32,6 +32,7 @@ class BrainThread2 extends Thread {
     //Run our tree search in here
     //maxCall
     //Lets check if this box can be won
+    if(bigSqCurr == 0) pickABig();
     PVector c = board.big[bigSqCurr - 1].canBeWon(TURN);
     if (c != null) {
       gameMakeMove(c);
@@ -48,6 +49,7 @@ class BrainThread2 extends Thread {
     bigChanged = bigSqCurr;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     println(smallChanged);
+    ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
 
     thinking = false;
   }
@@ -77,6 +79,13 @@ class BrainThread2 extends Thread {
       if ( now.isValid(r) ) break;
     }
     return new PVector(Utils.getX(r), Utils.getY(r));
+  }
+  void pickABig() {
+    int i = 0;
+    for(i = 0; i < 9; i++) {
+        if(board.big[i].state == 0) break;
+    }
+    bigSqCurr = i + 1;
   }
   /* Functions declared below
    * possibleMove(move, &board): finds if move is possible
