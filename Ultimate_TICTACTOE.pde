@@ -868,7 +868,6 @@ void draw()
       //
       if(thread2 == null) {
       //thread1.run();
-        println("PreDrawing");
       thread2 = new BrainThread2(board, bigSquarenow);
       thread2.start();
       } else {

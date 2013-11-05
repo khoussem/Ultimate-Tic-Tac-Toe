@@ -36,8 +36,11 @@ class Board {
  void unmakeMove(int i, int squareNow) {
  big[squareNow-1].unmakeMove(i); 
  }
- boolean possibleMove(int i, int squareNow) {
+ boolean onePossibleMove(int i, int squareNow) {
    return big[squareNow-1].possibleMove(i);
+ }
+ boolean possibleMove(int a, int b, int sqNow) {
+   return big[sqNow - 1].possibleMove(a, b);
  }
  boolean gameDone() {
   if(gameFinished() > 0) return true;

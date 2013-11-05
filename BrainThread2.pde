@@ -1,11 +1,15 @@
+import java.util.ArrayList;
 //Recursive solutions are us
 class BrainThread2 extends Thread {
   Board board = new Board();
   boolean running = false;
+  boolean moved = false;
   int smallChanged; //THIS IS FOR MOVING THE BOARD....
   int bigChanged;
   int stateChangedTo;
   final int TURN = 2;
+  int [][] movePrefs;
+  int [][] bigBoxRatings;
   //Might want to change this based upon the speed of our algorithm, maybe lower levels
   //of difficulty use smaller depthlimit
   final int DEPTHLIMIT = 10; //Limit on depth of recursion
@@ -17,8 +21,16 @@ class BrainThread2 extends Thread {
   int bigSqCurr;
   BrainThread2(Board bored, int BSN) { 
     board = bored; //Witty
-    bigSqCurr = BSN;
+    bigSqCurr = BSN; //This is stored 1-10
     running = true;
+    moved = false;
+    movePrefs = new int[3][3];
+    bigBoxRatings = new int[3][3];
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            movePrefs[i][j] = 50;
+        }
+    }
     //However, to explain, bored is a Board object that is updated 
     //in the main function, and is passed to BrainThread2 when BT2 is called
     //   maxCall(board, 0, 0, bigSquarenow, 0);
@@ -27,30 +39,90 @@ class BrainThread2 extends Thread {
     return running;
   }
   public void run() {
-    println("Start");
     int depth = 0; //Our starting call for the depth of the recursion
     //Run our tree search in here
     //maxCall
     //Lets check if this box can be won
-    if(bigSqCurr == 0) pickABig();
-    PVector c = board.big[bigSqCurr - 1].canBeWon(TURN);
-    if (c != null) {
-      gameMakeMove(c);
-      println("Non-rando");
-    } else gameMakeMove(getRandomMove());
+    if(bigSqCurr == 0) getRandomBox();
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            rateMove(i, j);
+        }
+    }
+    gameMakeMove(getBestMove());
     running = false;
   }
+  PVector getBestMove() {
+      int max = 0;
+      ArrayList<PVector> moves = new ArrayList<PVector>();
+      for(int i = 0; i < 3; i++) {
+          for(int j = 0; j < 3; j++) {
+            println("DEBUG: i: " + i + " j: " + j + " pref: " + movePrefs[i][j]);
+            if(movePrefs[i][j] > max) {
+                max = movePrefs[i][j];
+                moves = new ArrayList<PVector>();
+                moves.add(new PVector(i, j));
+            } else if(movePrefs[i][j] == max) {
+                moves.add(new PVector(i, j));
+            }
+          }
+      }
+      return moves.get(floor(random(0, moves.size())));
+  }
+  int rateBox(int a, int b, int Turn) {
+    return 1;
+  }
+  void rateMove(int a, int b) {
+    if(!board.possibleMove(a, b, bigSqCurr)) {
+      //println("DEBUG: bigSq: " + bigSqCurr + " not possible: " + (a + 3 * b));
+     movePrefs[a][b] = -4;
+     return; 
+    }
+    int nextBox = 3 * b + a;
+    if(board.big[bigSqCurr - 1].canBeWon(a, b, 2)) {
+        //This move wins this box
+        movePrefs[a][b] += 30; //For now though lets just increment
+        nextBox = 0;
+    } else {
+        if(board.big[bigSqCurr - 1].canBeWon(a, b, 1)) movePrefs[a][b] += 5; //Should multiply times opponents want of curr box
+    }
+    //Now lets subtract based upon what they can do in the next box
+    /*
+    int max = 0;
+    if(nextBox == 0) {
+        for(int i = 1; i < 10; i++) {
+            int v = subtractNextBoxVal(i, 1);
+            if(v > max) max = v;
+        }
+    } else max = subtractNextBoxVal(nextBox, 1);
+    movePrefs[a][b] -= max; */
+  }
+  int subtractNextBoxVal(int box, int turn) {
+    int ret = 0;
+    if(board.big[box - 1].canBeWon(turn) != null) {
+        ret += 27; //We want to multiply by box value
+    } else {
+        //If they can get 2 in a row...
+        //And other shit..
+    }
+    return ret;
+  }
+  void getRandomBox() {
+    ArrayList<Integer> possibles = new ArrayList<Integer>();
+    for(int i = 0; i < 9; i++) {
+      if(board.big[i].state == 0) possibles.add(new Integer(i + 1));
+    }
+    bigSqCurr = possibles.get(floor(random(0, possibles.size())));
+  }
   void makeMove(PVector p) {
-    println("Move, x: " + p.x + " y: " + p.y);
     board.big[bigSqCurr].makeMove((int)p.x, (int) (3  * p.y));
   }
   void gameMakeMove(PVector p) {
     stateChangedTo = 2;
     bigChanged = bigSqCurr;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
-    println(smallChanged);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
-
+    moved = true;
     thinking = false;
   }
   int quotient(int n, int d) {
@@ -62,12 +134,8 @@ class BrainThread2 extends Thread {
    return ret;
   }
   int getSmallChanged(int a, int b) {
-    println("A: " + a);
-    println("B: " + b);
-    println("Big: " + bigChanged);
    int ret = 1;
    ret += (3 * ((bigChanged + 2) % 3)) + a;
-   println("X: " + ret);
    ret += (quotient(bigChanged - 1, 3)) * 27 + b * 9;
    return ret;
   }
@@ -121,7 +189,7 @@ class BrainThread2 extends Thread {
     //Loop through each possible move
     for (int i = 1; i < 10; i++) { 
       //First make sure its possible, if not just move on to next case
-      if (board.possibleMove(i, squareNow)) {
+      if (board.onePossibleMove(i, squareNow)) {
         board.makeMove(i, squareNow);
         int moveHolder = minCall(board, _alpha, _beta, board.nextSquare, depth + 1); //This holds the value of the current move, minmove returns a value
         board.turn = 2; //Keep track of the turn for min versus max
@@ -173,7 +241,7 @@ class BrainThread2 extends Thread {
     //Loop through each possible move
     for (int i = 1; i < 10; i++) {
       //First make sure its possible, if not just move on to next case
-      if (board.possibleMove(i, squareNow)) {
+      if (board.onePossibleMove(i, squareNow)) {
         board.makeMove(i, squareNow);
         int moveHolder = maxCall(board, _alpha, _beta, board.nextSquare, depth + 1); //This holds the value of the current move, maxmove returns a value
         board.turn = 1;
