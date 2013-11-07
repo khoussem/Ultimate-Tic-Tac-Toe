@@ -1,5 +1,0 @@
-Each big box has nine smaller boxes. If, for example, you play in
-the middle of a big box, then the next move must be played in one
-of the middle big boxes nine squares. Each smaller box correlates
-to a bigger box. If this can be explained to a computer
-than you should be able to understand as well.
