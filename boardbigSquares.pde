@@ -2,6 +2,7 @@ class boardbigSquares {
   int state = 0;
   int Num;
   boardSquares [][] boxes = new boardSquares[3][3];
+  int [][] states;
   boardbigSquares(int num) {
     Num = num; 
     for (int i = 0; i < 3; i++) {
@@ -56,8 +57,8 @@ class boardbigSquares {
       return 0;
     }
   }
-  void makeMove(int i, int turn) {
-    boxes[findX(i)][findY(i)].state = turn;
+  void makeMove(int a, int b, int turn) {
+    boxes[a][b].state = turn;
     state = winCheck();
     //All next square controls are held here for convience
     if (state != 0) {
@@ -74,37 +75,22 @@ class boardbigSquares {
        }*/
     }
   }
-  void unmakeMove(int i) {
+  void unmakeMove(int a, int b) {
     /*  boxes[findX(i)][findY(i)].state = 0;
      if(state != 0) {
      state = 0;
      super.bigStates[Num] = 0;
      }*/
+     boxes[a][b].state = 0;
   }
   boolean possibleMove(int x, int y) {
     return boxes[x][y].state == 0;
   }
   boolean possibleMove(int i) {
-    if (boxes[findX(i)][findY(i)].state == 0) return true; else return false;
+    if (boxes[Utils.getX(i)][Utils.getY(i)].state == 0) return true; else return false;
   } 
-  int findX(int i) {
-    if (i == 3 || i == 6 || i == 9) {
-      return 2;
-    }
-    if (i == 2 || i == 5 || i == 8) {
-      return 1;
-    } else return 0;
-  }
-  int findY(int i) {
-    if (i < 4) {
-      return 0;
-    } 
-    if (i < 7) {
-      return 1;
-    } else return 2;
-  }
-  int winCheckXY(int x, int y) {
-    int [][] states = new int[7][7];
+  void initStates() {
+   states = new int[7][7];
     for (int j = 0; j < 7; j++) {
       for (int i = 0; i < 7; i++) {
         states[i][j] = 0;
@@ -115,6 +101,10 @@ class boardbigSquares {
         states[i][j] = boxes[i-2][j-2].state;
       }
     }
+
+  }
+  int winCheckXY(int x, int y) {
+    initStates();
     x = x + 2;
     y = y + 2;
     //horizontal middle

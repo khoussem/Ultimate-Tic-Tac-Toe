@@ -4,9 +4,6 @@ class BrainThread2 extends Thread {
   Board board = new Board();
   boolean running = false;
   boolean moved = false;
-  int smallChanged; //THIS IS FOR MOVING THE BOARD....
-  int bigChanged;
-  int stateChangedTo;
   final int TURN = 2;
   int [][] movePrefs;
   int [][] bigBoxRatings;
@@ -50,6 +47,9 @@ class BrainThread2 extends Thread {
         }
     }
     gameMakeMove(getBestMove());
+    newBigBoxRating n = new newBigBoxRating(board, 2);
+    n.initLikelyhoods();
+    n.printLikelyhood();
     running = false;
   }
   PVector getBestMove() {
@@ -68,6 +68,14 @@ class BrainThread2 extends Thread {
           }
       }
       return moves.get(floor(random(0, moves.size())));
+  }
+  int recursor(int depth) {
+    for(int i = 0; i < 3; i++) {
+      for(int j = 0; j < 3; j++) {
+        
+      }
+    }
+    return 0;
   }
   int rateBox(int a, int b, int Turn) {
     return 1;
@@ -114,11 +122,14 @@ class BrainThread2 extends Thread {
     }
     bigSqCurr = possibles.get(floor(random(0, possibles.size())));
   }
-  void makeMove(PVector p) {
-    board.big[bigSqCurr].makeMove((int)p.x, (int) (3  * p.y));
+  void makeMove(PVector p, int t) {
+    board.big[bigSqCurr].makeMove((int)p.x, (int) (p.y), t);
+  }
+  void unMakeMove(PVector p) {
+    board.big[bigSqCurr].unmakeMove((int) p.x, (int) (p.y));
   }
   void gameMakeMove(PVector p) {
-    stateChangedTo = 2;
+    //stateChangedTo = 2;
     bigChanged = bigSqCurr;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
@@ -147,13 +158,6 @@ class BrainThread2 extends Thread {
       if ( now.isValid(r) ) break;
     }
     return new PVector(Utils.getX(r), Utils.getY(r));
-  }
-  void pickABig() {
-    int i = 0;
-    for(i = 0; i < 9; i++) {
-        if(board.big[i].state == 0) break;
-    }
-    bigSqCurr = i + 1;
   }
   /* Functions declared below
    * possibleMove(move, &board): finds if move is possible

@@ -31,10 +31,10 @@ class Board {
  // return 0;
  }
  void makeMove(int i, int squareNow) {
-  big[squareNow-1].makeMove(i, turn);
+ // big[squareNow-1].makeMove(i, turn);
  }
  void unmakeMove(int i, int squareNow) {
- big[squareNow-1].unmakeMove(i); 
+ //big[squareNow-1].unmakeMove(i); 
  }
  boolean onePossibleMove(int i, int squareNow) {
    return big[squareNow-1].possibleMove(i);
