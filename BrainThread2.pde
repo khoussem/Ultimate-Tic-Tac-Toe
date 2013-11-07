@@ -47,7 +47,7 @@ class BrainThread2 extends Thread {
         }
     }
     gameMakeMove(getBestMove());
-    newBigBoxRating n = new newBigBoxRating(board, 2);
+    newBigBoxRating n = new newBigBoxRating(board, 1);
     n.initLikelyhoods();
     n.printLikelyhood();
     running = false;
