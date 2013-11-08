@@ -192,7 +192,6 @@ void setup()
 //taking in a number input
 int findMy2dArrayValueX(int n)
 {
-  println("N: " + n);
   if (n%9 == 0) return 2;
   if ((n - (quotientForme(n, 9) -1) * 9)/8 == 1) return 1;
   if ((n - (quotientForme(n, 9) -1) * 9)/7 == 1) return 0;

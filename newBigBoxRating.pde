@@ -16,7 +16,7 @@ public class newBigBoxRating {
     likeliness = new int[9];
     bigLikeliness = new int[9];
   }
-  int rateMe(int bigSqNum) {
+  int rateBoxes() {
     initLikelyhoods();
     initLikelyhoodsBig();
     return 1;
@@ -90,7 +90,8 @@ public class newBigBoxRating {
   }
   //Print out the likeliness of a smaller square
   public void printLikelyhood() {
-    for (int i = 0; i < 9; i++) println("DEBUG: box: " + i + " like: " + likeliness[i]);
+    for(int i = 0; i < 9; i++) println("DEBUG: box:" + i + " chance of being won: " + likeliness[i]);
+    for (int i = 0; i < 9; i++) println("DEBUG: box: " + i + " rating: " + bigLikeliness[i]);
   }
   //The below functions are for whole board analysis
   winPattern [] initPatternBigs(int num, ArrayList<winPattern> p) {
@@ -166,28 +167,43 @@ public class newBigBoxRating {
   //of it being part of a winning pattern and then rate it
   //as such
   void initLikelyhoodsBig() {
-    
+    winPattern [][] bigWinVectors = findBigPatterns();
+    for(int i = 0; i < 9; i++) {
+      //Lets find the likeliness, here we should use the likeliness of each individual box
+      int value = 0;
+      for(int patNow = 0; patNow < 4; patNow++) {
+        if(bigWinVectors[i][patNow] == null) break;
+        int [] boxNums = bigWinVectors[i][patNow].boxNumbers();
+          //println("DEBUG: Printing the boxNums of my winning Patterns sub: " + i);
+          //println("DEBUG: " + boxNums[0] + " & " + boxNums[1] + " & " + boxNums[2]);
+        //Lets now use the likeliness of winning each box
+        int val = likeliness[boxNums[0]] * likeliness[boxNums[1]] * likeliness[boxNums[2]];
+        //println("DEBUG: Val: " + val);
+        //So val is gonna be too big, but for now lets use it
+        value += val;
+      }
+      bigLikeliness[i] = value;//floor(log(value));
+    }
   }
+  //Vector representation of a pattern that wins a box
+  //Also used for combinations of big boxes
   private class winPattern {
-    PVector a;
+    PVector a; //x, y values of each box in the pattern
     PVector b;
     PVector c;
-    int [] state;
-    int likelyhood;
+    int [] state; //state of each box
+    int likelyhood; //likelyhood of it happening (-1 to 3)
     public winPattern() {
       state = new int[3];
       likelyhood = 0;
     }
-    void initMyself(int i, int j, int k) {
-      a = new PVector(Utils.getX(i), Utils.getY(i));
-      b = new PVector(Utils.getX(j), Utils.getY(j));
-      c = new PVector(Utils.getX(k), Utils.getY(k));
-    }
+    //Creates the box vectors
     void initMyself(PVector A, PVector B, PVector C) {
       a = A;
       b = B;
       c = C;
     }
+    //Inits the states; one function for small box, one for bi
     void initStates(boardbigSquares box) {
       state[0] = box.boxes[(int) a.x][(int) a.y].state;
       state[1] = box.boxes[(int) b.x][(int) b.y].state;
@@ -198,13 +214,23 @@ public class newBigBoxRating {
       state[1] = bo.big[(int)(b.x + 3 * b.y)].state;
       state[2] = bo.big[(int)(c.x + 3 * c.y)].state;
     }
+    //This is for an individual box
     void initLikelyhood(int t) {
-      int other = Utils.getOtherTurn(t);
+      int other = Utils.getOtherTurn(t); //Other turns value
       if (state[0] == other || state[1] == other || state[2] == other) {
-        likelyhood = -1;
+        likelyhood = -1; //We can't win this pattern
         return;
       }
+      //For every square in this pattern we have won, increase likelyhood
+      //So zero = nobody has any squares, one = one taken box, two = two in a row, three = won
       for (int i = 0; i < 3; i++) if (state[i] == t) likelyhood++;
+    }
+    int [] boxNumbers() {
+      int [] ret = new int[3];
+      ret[0] = (int)(a.x + 3 * a.y);
+      ret[1] = (int)(b.x + 3 * b.y);
+      ret[2] = (int)(c.x + 3 * c.y);
+      return ret;
     }
   }
 }

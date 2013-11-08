@@ -46,10 +46,10 @@ class BrainThread2 extends Thread {
             rateMove(i, j);
         }
     }
-    gameMakeMove(getBestMove());
-    newBigBoxRating n = new newBigBoxRating(board, 1);
-    n.initLikelyhoods();
+    newBigBoxRating n = new newBigBoxRating(board, 2);
+    n.rateBoxes();
     n.printLikelyhood();
+    gameMakeMove(getBestMove());
     running = false;
   }
   PVector getBestMove() {
@@ -57,7 +57,7 @@ class BrainThread2 extends Thread {
       ArrayList<PVector> moves = new ArrayList<PVector>();
       for(int i = 0; i < 3; i++) {
           for(int j = 0; j < 3; j++) {
-            println("DEBUG: i: " + i + " j: " + j + " pref: " + movePrefs[i][j]);
+            //println("DEBUG: i: " + i + " j: " + j + " pref: " + movePrefs[i][j]);
             if(movePrefs[i][j] > max) {
                 max = movePrefs[i][j];
                 moves = new ArrayList<PVector>();
