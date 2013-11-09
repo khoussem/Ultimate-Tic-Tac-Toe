@@ -16,10 +16,21 @@ public class newBigBoxRating {
     likeliness = new int[9];
     bigLikeliness = new int[9];
   }
-  int rateBoxes() {
+  int ratePosition() {
     initLikelyhoods();
     initLikelyhoodsBig();
-    return 1;
+    int rating = getSumOfRatings();
+    turn = Utils.getOtherTurn(turn);
+    initLikelyhoods();
+    initLikelyhoodsBig();
+    rating += getSumOfRatings();
+    turn = Utils.getOtherTurn(turn);
+    return rating;
+  }
+  int getSumOfRatings() {
+    int ret = 0;
+    for(int i = 0; i < 9; i++) ret += bigLikeliness[i] / 100;
+    return ret;
   }
   //This initializes a list of the eight different 
   //Winning combination vectors, that are than used 
@@ -77,8 +88,8 @@ public class newBigBoxRating {
     //aaron's approximation to adjust values to be apt)
     float likely = 0;
     //Add significant amount if it can be won in one turn (theres a two in a row)
-    if (numTwos == 1) likely += 20;
-    else if (numTwos >= 2) likely += 25 + numTwos - 2;
+    if (numTwos == 1) likely += 5;
+    else if (numTwos >= 2) likely += 5 + numTwos - 1;
     likely += 1.5 * numOnes; //For every pattern thats missing two add 1.5
     likely += .5 * numZeros; //So it starts at 4
     //If we can win eventually (thats what numZeros represents)
