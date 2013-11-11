@@ -23,7 +23,7 @@ class BrainThread2 extends Thread {
     bigBoxRatings = new int[3][3];
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        movePrefs[i][j] = 50;
+        movePrefs[i][j] = 0;
       }
     }
     //However, to explain, bored is a Board object that is updated 
@@ -40,13 +40,13 @@ class BrainThread2 extends Thread {
     //maxCall
     if (bigSquarenow == 0) getRandomBox();
     /*for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        rateMove(i, j);
-      }
-    }*/
+     for (int j = 0; j < 3; j++) {
+     rateMove(i, j);
+     }
+     }*/
     recursor(2, 0);
-    gameMakeMove(getBestMove());
     bigSquarenow = startBSN;
+    gameMakeMove(getBestMove());
     running = false;
   }
   PVector getBestMove() {
@@ -67,16 +67,22 @@ class BrainThread2 extends Thread {
     return moves.get(floor(random(0, moves.size())));
   }
   int recursor(int turn, int depth) {
-    if(depth >= DEPTHLIMIT) return 0;
+    if (depth >= DEPTHLIMIT) return 0;
     movePrefs = new int[3][3];
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
+        println("BigSqNow: "  + bigSquarenow);
+        if (!board.possibleMove(i, j, bigSquarenow)) {
+          movePrefs[i][j] = -4;
+          continue;
+        }
         int Bsn = bigSquarenow;
         makeMove(new PVector(i, j), turn); 
-        newBigBoxRating n = new newBigBoxRating(board, 1);
-        int rating = n.ratePosition();
-        movePrefs[i][j] = rating;
+        //newBigBoxRating n = new newBigBoxRating(board, 1);
+        //int rating = n.ratePosition();
+        //movePrefs[i][j] = rating;
         unMakeMove(new PVector(i, j), Bsn);
+        bigSquarenow = Bsn;
       }
     }
     //For now don't recurse...
@@ -120,9 +126,10 @@ class BrainThread2 extends Thread {
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
   }
   void unMakeMove(PVector p, int bigNow) {
-    bigChanged = bigNow;
     ((smallestSquares) smalls.get(smallChanged - 1)).state = 0;
     changeMade = false;
+    turn = Utils.getOtherTurn(turn);
+    bigChanged = bigNow;
   }
   void gameMakeMove(PVector p) {
     //stateChangedTo = 2;

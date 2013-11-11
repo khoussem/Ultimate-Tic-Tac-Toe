@@ -866,6 +866,7 @@ void draw()
       thinking = true; //Need this so .start() is only called once
       //
       if(thread2 == null) {
+       println("Starting...");
       //thread1.run();
       thread2 = new BrainThread2(board, bigSquarenow);
       thread2.start();
