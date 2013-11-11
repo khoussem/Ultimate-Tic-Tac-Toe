@@ -78,6 +78,10 @@ class smallestSquares
     else turn = 1;
     //simply cool if else!
   }
+  void unTake() {
+    state = 0;
+    if(bigstate[littletoBig(smallsquare)] != 0) bigstate[littletoBig(smallsquare)] = 0;
+  }
   void build() {
     move();
     rect(x, y, width, height);

@@ -7,9 +7,11 @@ class BrainThread2 extends Thread {
   final int TURN = 2;
   int [][] movePrefs;
   int [][] bigBoxRatings;
+  int bestMove;
+  int bestX, bestY;
   //Might want to change this based upon the speed of our algorithm, maybe lower levels
   //of difficulty use smaller depthlimit
-  final int DEPTHLIMIT = 10; //Limit on depth of recursion
+  final int DEPTHLIMIT = 4; //Limit on depth of recursion
   /*  Constructors to be passed 
    *  Board's current position  
    *
@@ -26,6 +28,8 @@ class BrainThread2 extends Thread {
         movePrefs[i][j] = 0;
       }
     }
+    bestX = 0;
+    bestY = 0;
     //However, to explain, bored is a Board object that is updated 
     //in the main function, and is passed to BrainThread2 when BT2 is called
     //   maxCall(board, 0, 0, bigSquarenow, 0);
@@ -44,9 +48,9 @@ class BrainThread2 extends Thread {
      rateMove(i, j);
      }
      }*/
-    recursor(2, 0);
+    recursor(0, 0);
     bigSquarenow = startBSN;
-    gameMakeMove(getBestMove());
+    gameMakeMove(bestX, bestY);
     running = false;
   }
   PVector getBestMove() {
@@ -66,27 +70,75 @@ class BrainThread2 extends Thread {
     }
     return moves.get(floor(random(0, moves.size())));
   }
-  int recursor(int turn, int depth) {
-    if (depth >= DEPTHLIMIT) return 0;
-    movePrefs = new int[3][3];
+  int recursor(int depth, int rating) {
+    String tabs = "";
+    for(int i = 0; i < depth; i++) tabs += "\t";
+    println(tabs + "Depth: " + depth);
+    println(tabs + "Big square now: " + bigSquarenow);
+    if(bigSquarenow == 0) bigSquarenow = 1;
+    int bestMove;
+    if(depth % 2 == 0) bestMove = -10000; //The retval...
+    else bestMove = 1000000000;
+    if (depth >= DEPTHLIMIT) return rating;
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        println("BigSqNow: "  + bigSquarenow);
+        //println("BigSqNow: "  + bigSquarenow);
         if (!board.possibleMove(i, j, bigSquarenow)) {
-          movePrefs[i][j] = -4;
+        //Need not adjust retval for this case, just continue
+          println(tabs + "i: " + i + " j: " + j + "Impossible move");
           continue;
         }
-        int Bsn = bigSquarenow;
-        makeMove(new PVector(i, j), turn); 
-        //newBigBoxRating n = new newBigBoxRating(board, 1);
-        //int rating = n.ratePosition();
-        //movePrefs[i][j] = rating;
-        unMakeMove(new PVector(i, j), Bsn);
+        int Bsn = bigSquarenow; //Store for later reproduction
+        makeMove(new PVector(i, j), turn); //Make the temp move on the board
+        
+        newBigBoxRating n = new newBigBoxRating(board, 1); //Init the position rating
+        int afterMoveRating = n.ratePosition(); //The rating after a move... If worse than 
+        boolean keepGoing = false;
+        //If depth % 2 == 0 then
+        //we just made a move for the computer
+        if(depth % 2 == 0) {
+            //Therefore if the rating of the position we got
+            //Is worse than the rating of the 
+            if(afterMoveRating > bestMove) {
+              //This is gotten better for computer 
+              keepGoing = true;
+            } else {
+              //Otherwise our position declined...
+              keepGoing = false;
+            }
+        } else {
+            if(afterMoveRating < bestMove) keepGoing = true;
+            else keepGoing = false; 
+        }
+        int r = afterMoveRating; //Make this bestMove
+        if(keepGoing) r = recursor(depth + 1, afterMoveRating);
+        if(keepGoing) println(tabs + "Returning from recursion");
+        println(tabs + "Rating of i: " + i + " j: " + j + " is " + r);
+       // println("Returning from recursion with depth: " + depth);
+        //println("My i is: " + i + " my j is: " + j);
         bigSquarenow = Bsn;
+        unMakeMove(new PVector(i, j), Bsn);
+        if(depth % 2 == 0) {
+          if( r > bestMove) {
+            bestMove = r;
+            if(depth == 0) {
+            bestX = i;
+            bestY = j;  
+            }
+          }
+        } else if(r < bestMove) {
+            if(depth == 0) {
+            bestX = i;
+            bestY = j;  
+            }
+            bestMove = r;
+        }    
       }
     }
     //For now don't recurse...
-    return 0;
+    println(tabs + "Best move: " + bestMove);
+    println(tabs + "BestX " + bestX + " bestY " + bestY);
+    return bestMove;
   }
   void rateMove(int a, int b) {
     if (!board.possibleMove(a, b, bigSquarenow)) {
@@ -126,10 +178,20 @@ class BrainThread2 extends Thread {
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
   }
   void unMakeMove(PVector p, int bigNow) {
-    ((smallestSquares) smalls.get(smallChanged - 1)).state = 0;
+    if(bigstate[bigSquarenow] != 0) bigstate[bigSquarenow] = 0;
+    bigChanged = bigNow;
+    smallChanged = getSmallChanged((int) p.x, (int) p.y);
+    ((smallestSquares) smalls.get(smallChanged - 1)).unTake();
     changeMade = false;
     turn = Utils.getOtherTurn(turn);
-    bigChanged = bigNow;
+  }
+  void gameMakeMove(int x, int y) {
+    //stateChangedTo = 2;
+    bigChanged = bigSquarenow;
+    smallChanged = getSmallChanged(x, y);
+    ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
+    moved = true;
+    thinking = false;
   }
   void gameMakeMove(PVector p) {
     //stateChangedTo = 2;

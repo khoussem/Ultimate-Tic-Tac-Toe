@@ -17,14 +17,16 @@ public class newBigBoxRating {
     bigLikeliness = new int[9];
   }
   int ratePosition() {
+    int tempTurn = turn;
+    turn = 2;
     initLikelyhoods();
     initLikelyhoodsBig();
     int rating = getSumOfRatings();
-    turn = Utils.getOtherTurn(turn);
+    turn = 1;
     initLikelyhoods();
     initLikelyhoodsBig();
-    rating += getSumOfRatings();
-    turn = Utils.getOtherTurn(turn);
+    rating -= getSumOfRatings();
+    turn = tempTurn;
     return rating;
   }
   int getSumOfRatings() {
