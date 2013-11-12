@@ -18,9 +18,12 @@ boolean tester;
 boolean mouseRelease;
 boolean highLight=true;
 int highLightNum = 5;
+int brainViewNum = 7;
+boolean brainView = true;
 ArrayList smalls;
 PImage Ex;
 PImage Oh;
+//aaron sucks elephant penis
 //Smalls is an length 81 array of each small square
 //Each biggerSquares is an object of a single larger
 //box, going left to right
@@ -67,12 +70,16 @@ void keyReleased()
   if (key == ' ') spacePressed = false;
   if (key == 't' ) {
     //findTwoinaRows(bigObject(bigSquarenow));
+    for (int i = 1; i < 10; i++) {
+      println("State: " + i);
+      println(bigstate[i]);
+    }
   }
-  if(key == 'p') {
-   newBigBoxRating n = new newBigBoxRating(board, 2);
-   int rating = n.ratePosition();
-   println("Negative is X, Positive is O");
-   println("Positional rating: " + rating);
+  if (key == 'p') {
+    newBigBoxRating n = new newBigBoxRating(board, 2);
+    int rating = n.ratePosition();
+    println("Negative is X, Positive is O");
+    println("Positional rating: " + rating);
   }
 }
 void mouseReleased()
@@ -223,28 +230,24 @@ int quotientForme(float num, float divisor)
 {
   //this quotient finds the quotient, but if there is no remainder
   //it goes in as the quotient-1;
-  if (num/divisor == floor(num/divisor)) return floor(num/divisor);
-  else return floor(num/divisor)+1;
+  if (num/divisor == floor(num/divisor)) return floor(num/divisor); else return floor(num/divisor)+1;
 }
 void boardBuild()
 {
-  if (boardWon(bigstate) == 1) gameState = 1;
-  else if (boardWon(bigstate) == 2) gameState = 2;
+  if (boardWon(bigstate) == 1) gameState = 1; else if (boardWon(bigstate) == 2) gameState = 2;
   if (gameState==0)
   {
     //This is little detail shit
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*45-5, 0, 5, height);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*45-5, width, 5);
     }
     //minor error fixing
@@ -260,8 +263,7 @@ void boardBuild()
   if (gameState!=0) { //This is for victory
     fill(255);
     rect(0, 0, width, height);
-    if (gameState == 1) image(Ex, width/2, height/2, width, height);
-    else if (gameState == 2) image(Oh, width/2, height/2, width, height);
+    if (gameState == 1) image(Ex, width/2, height/2, width, height); else if (gameState == 2) image(Oh, width/2, height/2, width, height);
     textAlign(CENTER);
     fill(0);
     text("Press Space to Play Again", width/2, height/2);
@@ -280,8 +282,7 @@ int littletoBig(float num)
   //second case is for rows i%3 = 2
   if (quotientForme(num, 9.0)%3==2) return floor((num-1)%3)+4;
   //final case is for i%3 = 0
-  if (quotientForme(num, 9.0)%3==0) return floor((num-1)%3)+7;
-  else return 100;
+  if (quotientForme(num, 9.0)%3==0) return floor((num-1)%3)+7; else return 100;
   //the quotient for me is right bove, and the return
   //is pretty understandable
 }
@@ -310,8 +311,7 @@ int bigFinder(int num)
     num>=73 && num<=75) return 7;
   if (num>=58 && num<=60 ||
     num>=67 && num<=69 ||
-    num>=76 && num<=78) return 8;
-  else return 9;
+    num>=76 && num<=78) return 8; else return 9;
 }
 //END OF THESE FUNCTIONS
 //winupdater is called everytime a change is made
@@ -451,8 +451,7 @@ biggerSquares bigObject(int biggerSquare)
   if (biggerSquare == 5) return big5;
   if (biggerSquare == 6) return big6;
   if (biggerSquare == 7) return big7;
-  if (biggerSquare == 8) return big8;
-  else return big9;
+  if (biggerSquare == 8) return big8; else return big9;
 }
 void boardUpdater() {
   for (int i = 0; i < 9; i++) {
@@ -511,6 +510,9 @@ boolean button(float x, float y, float width, float height, String t, int switch
   }
   if (switcher == highLightNum) {
     fill(255, 0, 0);
+  }
+  if(switcher == brainViewNum) {
+    fill(255, 0, 0); 
   }
   rectMode(CENTER);
   rect(x, y, width, height);
@@ -578,15 +580,13 @@ void rulesIScreen() { //image displayer
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*30-5, 0, 5, 260);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*30-5, 260, 5);
     }
     //minor error fixing
@@ -605,15 +605,13 @@ void rulesIScreen() { //image displayer
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*30-5, 0, 5, 260);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*30-5, 260, 5);
     }
     //minor error fixing
@@ -638,15 +636,13 @@ void rulesIScreen() { //image displayer
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*30-5, 0, 5, 260);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*30-5, 260, 5);
     }
     //minor error fixing
@@ -672,15 +668,13 @@ void rulesIScreen() { //image displayer
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*30-5, 0, 5, 260);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*30-5, 260, 5);
     }
     //minor error fixing
@@ -706,15 +700,13 @@ void rulesIScreen() { //image displayer
     for (int i=1; i<9; i++)
     {
       //fill in rectangles height wise
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(i*30-5, 0, 5, 260);
     }
     for (int i=1; i<9; i++)
     {
       //fill in rectangles
-      if (i==3 || i ==6) fill(0);
-      else fill(200);
+      if (i==3 || i ==6) fill(0); else fill(200);
       rect(0, i*30-5, 260, 5);
     }
     //minor error fixing
@@ -763,10 +755,8 @@ void ruleScreen() {
             Rules = false; 
             rulesImageScreen = true;
           }
-        } 
-        else textSize(12);
-      } 
-      else fill(0);
+        } else textSize(12);
+      } else fill(0);
       text(rules[i], width/2, 150+15*i);
     }
   } 
@@ -824,6 +814,15 @@ void optionScreen()
     highLight = false;
     highLightNum = 6;
   }
+  text("Brain view:", width/2-145, 300+5);
+  if (button(width/2-40, 300, 65, 25, "On", 7)) {
+    brainViewNum = 7;
+    brainView = true;
+  }
+  if (button(width/2+40, 300, 65, 25, "Off", 8)) {
+    brainViewNum = 8;
+    brainView = false;
+  }
 }
 void drawHighlight() {
   int x = 0;
@@ -834,24 +833,20 @@ void drawHighlight() {
     if (bigSquarenow <= 3) {
       y = -5;
       height = 138;
-    } 
-    else if (bigSquarenow <= 6) {
+    } else if (bigSquarenow <= 6) {
       y = 133;
       height = 133;
-    } 
-    else if (bigSquarenow <=9 ) {
+    } else if (bigSquarenow <=9 ) {
       y = 268;
       height = 133;
     }
     if (bigSquarenow%3 == 1) {
       x = -5;
       width = 138;
-    } 
-    else if (bigSquarenow%3 == 2) {
+    } else if (bigSquarenow%3 == 2) {
       x = 133;
       width = 133;
-    } 
-    else {
+    } else {
       x = 268;
       width = 133;
     }
@@ -871,42 +866,38 @@ void draw()
     if (turn == 2 && computer) {
       thinking = true; //Need this so .start() is only called once
       //
-      if(thread2 == null) {
-       println("Starting...");
-      //thread1.run();
-      thread2 = new BrainThread2(board, bigSquarenow);
-      thread2.start();
+      if (thread2 == null) {
+        println("Starting...");
+        //thread1.run();
+        thread2 = new BrainThread2(board, bigSquarenow);
+        thread2.start();
       } else {
-          if(!thread2.running()) {
-              thread2 = null;
-              thinking = false;
-          }
+        if (!thread2.running()) {
+          thread2 = null;
+          thinking = false;
+        }
       }
-    } 
-    else { //if (!thinking) {
+    } else { //if (!thinking) {
       stroke(0);
       //Function that builds board
       //if(!thinking) 
-      buildSmallSquares();
-      if(!thinking) boardBuild();
+      if(brainView || !thinking) buildSmallSquares();
+      if (!thinking) boardBuild();
       //Inside boardBuild is the winstate checkers
       //This functions checks for the availibiity
       //of the current box
-      if(!thinking) currBoxCheck();
+      if (!thinking) currBoxCheck();
       if (highLight && !thinking) drawHighlight();
       //END OF TIC TAC TOE CODE
     }
-  } //START OF MENU CODE
+  } //START OF MENU CODE 
   else if (options) {
     optionScreen();
-  } 
-  else if (Rules) {
+  } else if (Rules) {
     ruleScreen();
-  }
-  else if (rulesImageScreen) {
+  } else if (rulesImageScreen) {
     rulesIScreen();
-  } 
-  else startScreen();
+  } else startScreen();
 }
 /*void findTwoinaRows(biggerSquares big1) {
  //Check to make sure the two

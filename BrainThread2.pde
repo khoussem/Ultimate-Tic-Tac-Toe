@@ -12,13 +12,14 @@ class BrainThread2 extends Thread {
   boolean lastWasWon = false;
   //Might want to change this based upon the speed of our algorithm, maybe lower levels
   //of difficulty use smaller depthlimit
-  int DEPTHLIMIT = 5; //Limit on depth of recursion
+  int DEPTHLIMIT = 6; //Limit on depth of recursion
   /*  Constructors to be passed 
    *  Board's current position  
    *
    *
    */
   BrainThread2(Board bored, int BSN) { 
+    DEPTHLIMIT = difficulty + 3;
     board = bored; //Witty
     running = true;
     moved = false;
@@ -43,14 +44,14 @@ class BrainThread2 extends Thread {
     int depth = 0; //Our starting call for the depth of the recursion
     //Run our tree search in here
     //maxCall
-   // if (bigSquarenow == 0) getRandomBox();
+    // if (bigSquarenow == 0) getRandomBox();
     /*for (int i = 0; i < 3; i++) {
      for (int j = 0; j < 3; j++) {
      rateMove(i, j);
      }
      }*/
     recursor(0, 0);
-    if(startBSN != 0) bigSquarenow = startBSN;
+    if (startBSN != 0) bigSquarenow = startBSN;
     gameMakeMove(bestX, bestY);
     running = false;
   }
@@ -76,28 +77,24 @@ class BrainThread2 extends Thread {
     for (int i = 0; i < depth; i++) tabs += "\t";
     int bestmove = 0;
     if (bigSquarenow == 0) {
-     // println(tabs + "Depth: " + depth);
-     // println(tabs + "Big square now: " + bigSquarenow);
-      if (depth % 2 == 0) bestmove = -1000000; //The retval... 
-      else bestmove = 1000000000;
-      DEPTHLIMIT--;
+      // println(tabs + "Depth: " + depth);
+      // println(tabs + "Big square now: " + bigSquarenow);
+      if (depth % 2 == 0) bestmove = -1000000; //The retval... else bestmove = 1000000000;
+      //DEPTHLIMIT++;
       int bestBig = 0;
       int myBestX = 0;
       int myBestY = 0;
-      if(depth == 1) println("here we'are " + depth);
-      bestmove = rating;
+      //if(depth == 1) println("here we'are " + depth);
       for (int tempBig = 1; tempBig < 10; tempBig++) {
-        if(bigstate[tempBig] != 0) continue;
+        if (bigstate[tempBig] != 0) continue;
+        if (depth == 0) println("Tempbig: " + tempBig);
         bigSquarenow = tempBig;
         //println("Temp big: " + tempBig);
         //println("DEPTH!SADG: " + depth);
         int tempRating = rateTheBig(depth, rating);
         //if(tempRating == rating) println("Too deep: returning...");
-        //println("Rating of the big: " + tempRating);
-        if(depth == 1) {
-          println("Num: " + tempBig + " TR: " + tempRating);
-          last = true; 
-        }
+        if (depth == 0) println("Rating of the big: " + tempRating);
+        //println(
         if (depth % 2 == 0) {
           if (tempRating > bestmove) {
             bestmove = tempRating;
@@ -114,14 +111,16 @@ class BrainThread2 extends Thread {
           }
         }
       }
-      if(depth == 0) {
-      bestX = myBestX;
-      bestY = myBestY;
+      if (depth == 0) {
+        bestX = myBestX;
+        bestY = myBestY;
+        println("Best x, y: " + bestX + ", " + bestY);
+        println("Best box... " + bestBig);
       }
-      if(depth == 1) println("Best big: " + bestBig);
+      //if(depth == 1) println("Best big: " + bestBig);
       bigSquarenow = bestBig;
-      DEPTHLIMIT++;
-      if(depth == 1) println("Best move: " + bestmove);
+      //DEPTHLIMIT--;
+      //if(depth == 1) println("Best move: " + bestmove);
     } else bestmove = rateTheBig(depth, rating);
     //For now don't recurse...
     //println(tabs + "Best move: " + bestMove);
@@ -130,8 +129,8 @@ class BrainThread2 extends Thread {
   }
   int rateTheBig(int depth, int rating) {
     int depthInc = 0;
-    if(bigSquarenow == 0) println("WTF");
-    if(lastWasWon && depth == DEPTHLIMIT) {
+    if (bigSquarenow == 0) println("WTF");
+    if (lastWasWon && depth == DEPTHLIMIT) {
       depthInc++;
       //println(lastWasWon);
       lastWasWon = false;
@@ -140,8 +139,7 @@ class BrainThread2 extends Thread {
     String tabs = "";
     for (int i = 0; i < depth; i++) tabs += '\t';
     int bestMove = 0;
-    if (depth % 2 == 0) bestMove = -1000000; //The retval... 
-    else bestMove = 1000000000;
+    if (depth % 2 == 0) bestMove = -1000000; //The retval... else bestMove = 1000000000;
     if (depth >= DEPTHLIMIT) {
       return rating;
     }
@@ -173,23 +171,9 @@ class BrainThread2 extends Thread {
         } else {
           if (afterMoveRating < bestMove) keepGoing = true; else keepGoing = false;
         }
-        if(bigSquarenow == 0) lastWasWon = true;
+        if (bigSquarenow == 0) lastWasWon = true;
         int r = afterMoveRating; //Make this bestMove
-        boolean readit = false;
-        if(bigSquarenow == 0 && (depth == 1 || last)) {
-          last = false;
-          println("Big square now: " + Bsn);
-          println("Depth: " + depth);
-          println("I and J: " + i + " " + j);
-          println("Original after move rating: " + afterMoveRating); 
-          readit = true;
-        }
         if (keepGoing) r = recursor(depth + 1, afterMoveRating);
-        if(readit) {
-          println("Current best move: " + bestMove);
-          println("Returned value: " + r);
-          readit = false;
-        }
         //          if(keepGoing) println(tabs + "Returning from recursion");
         //          println(tabs + "Rating of i: " + i + " j: " + j + " is " + r);
         // println("Returning from recursion with depth: " + depth);
@@ -253,6 +237,7 @@ class BrainThread2 extends Thread {
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
+    if(bigstate[bigSquarenow] != 0) bigSquarenow = bigChanged;
   }
   void unMakeMove(PVector p, int bigNow) {
     if (bigstate[bigSquarenow] != 0) bigstate[bigSquarenow] = 0;
@@ -263,6 +248,10 @@ class BrainThread2 extends Thread {
     turn = Utils.getOtherTurn(turn);
   }
   void gameMakeMove(int x, int y) {
+    println("Box: " + bigSquarenow);
+    println("X: " + x + " Y: " + y);
+    //newBigBoxRating n = new newBigBoxRating(board, 2);
+    //println("Pre-move rating: " + n.ratePosition());
     //stateChangedTo = 2;
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged(x, y);

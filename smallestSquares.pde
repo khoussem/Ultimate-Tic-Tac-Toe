@@ -41,12 +41,15 @@ class smallestSquares
           //bigSquarenow ==0 means a free move in any box
           if (mousePressed && state==0 && bigstate[largersquare]==0)
           {
-            if(!thinking) boxTaker();
+            if (!thinking) { 
+              println("Box: " + bigSquarenow);
+              println("small square: " + smallsquare);
+              boxTaker();
+            }
           }
         }
       }
-    } 
-    else if (computerReturn == true) {
+    } else if (computerReturn == true) {
       computerReturn = false;
       boxTaker();
     }
@@ -68,27 +71,23 @@ class smallestSquares
     //moving to, or the move you just played has filled a box
     //then the other player gets a freebee  
     if (bigstate[littletoBig(smallsquare)]!=0) bigSquarenow = //SPACE
-    largersquare;
-    else if (bigstate[bigFinder(smallsquare)]!=0) bigSquarenow = 0;
-    else bigSquarenow = littletoBig(smallsquare);
+    largersquare; else if (bigstate[bigFinder(smallsquare)]!=0) bigSquarenow = 0; else bigSquarenow = littletoBig(smallsquare);
     //This makes it so you move in the same square if
     //The move sends you to a filled one
     //Flips the turn
-    if (turn == 1) turn = 2;
-    else turn = 1;
+    if (turn == 1) turn = 2; else turn = 1;
     //simply cool if else!
   }
   void unTake() {
     state = 0;
-    if(bigstate[littletoBig(smallsquare)] != 0) bigstate[littletoBig(smallsquare)] = 0;
+    if (bigstate[littletoBig(smallsquare)] != 0) bigstate[littletoBig(smallsquare)] = 0;
   }
   void build() {
     move();
-    if(highLight && !thinking && smallsquare == smallChanged) fill(186, 240, 184);
+    if (highLight && !thinking && smallsquare == smallChanged) fill(186, 240, 184);
     rect(x, y, width, height);
     imageMode(CENTER);
-    if (state == 1) image(Ex, x+width/2, y+height/2, width, height);
-    else if (state == 2) image(Oh, x+width/2, y+height/2, width, height);
+    if (state == 1) image(Ex, x+width/2, y+height/2, width, height); else if (state == 2) image(Oh, x+width/2, y+height/2, width, height);
   }
   boolean isEmpty() {
     return state == 0;
