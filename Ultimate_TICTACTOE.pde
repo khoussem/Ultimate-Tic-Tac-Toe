@@ -68,6 +68,12 @@ void keyReleased()
   if (key == 't' ) {
     //findTwoinaRows(bigObject(bigSquarenow));
   }
+  if(key == 'p') {
+   newBigBoxRating n = new newBigBoxRating(board, 2);
+   int rating = n.ratePosition();
+   println("Negative is X, Positive is O");
+   println("Positional rating: " + rating);
+  }
 }
 void mouseReleased()
 {
@@ -880,13 +886,14 @@ void draw()
     else { //if (!thinking) {
       stroke(0);
       //Function that builds board
+      //if(!thinking) 
       buildSmallSquares();
-      boardBuild();
+      if(!thinking) boardBuild();
       //Inside boardBuild is the winstate checkers
       //This functions checks for the availibiity
       //of the current box
-      currBoxCheck();
-      if (highLight) drawHighlight();
+      if(!thinking) currBoxCheck();
+      if (highLight && !thinking) drawHighlight();
       //END OF TIC TAC TOE CODE
     }
   } //START OF MENU CODE

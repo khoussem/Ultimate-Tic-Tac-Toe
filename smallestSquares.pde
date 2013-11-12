@@ -41,7 +41,7 @@ class smallestSquares
           //bigSquarenow ==0 means a free move in any box
           if (mousePressed && state==0 && bigstate[largersquare]==0)
           {
-            boxTaker();
+            if(!thinking) boxTaker();
           }
         }
       }
@@ -84,6 +84,7 @@ class smallestSquares
   }
   void build() {
     move();
+    if(highLight && !thinking && smallsquare == smallChanged) fill(186, 240, 184);
     rect(x, y, width, height);
     imageMode(CENTER);
     if (state == 1) image(Ex, x+width/2, y+height/2, width, height);
