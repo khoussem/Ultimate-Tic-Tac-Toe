@@ -1,0 +1,10 @@
+The objective of the game is to win three big boxes in a row.
+To win a big box, you must win three in a row of the smaller boxes
+inside that big box. The first move can be made in any box. 
+After that, the next players move must be inside the big box 
+that correlates to the smaller box that was just played in.
+Click here for an explanation of the relationship. 
+After winning a box, the other player gets a freebee. 
+That means they can play in any box they choose. If you send 
+someone to a box that has already been the won, the next move 
+will remain in the box the last player played in.
