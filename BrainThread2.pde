@@ -53,8 +53,6 @@ class BrainThread2 extends Thread {
       }
       }*/
     recursor(0, 0);
-    println("Tree usefulness: " + existedCount);
-    println("Uselessness: " + notExistedCount);
     if (startBSN != 0) bigSquarenow = startBSN;
     gameMakeMove(bestX, bestY);
     running = false;
@@ -125,8 +123,8 @@ class BrainThread2 extends Thread {
       if (depth == 0) {
         bestX = myBestX;
         bestY = myBestY;
-        // println("Best x, y: " + bestX + ", " + bestY);
-        // println("Best box... " + bestBig);
+        println("Best x, y: " + bestX + ", " + bestY);
+        println("Best box... " + bestBig);
       }
       //if(depth == 1) println("Best big: " + bestBig);
       bigSquarenow = bestBig;
@@ -141,7 +139,6 @@ class BrainThread2 extends Thread {
   }
   int rateTheBig(int depth, int rating) {
     int depthInc = 0;
-    if (bigSquarenow == 0) println("WTF");
     if (lastWasWon && depth == DEPTHLIMIT) {
       depthInc++;
       //println(lastWasWon);
@@ -151,7 +148,12 @@ class BrainThread2 extends Thread {
     String tabs = "";
     for (int i = 0; i < depth; i++) tabs += '\t';
     int bestMove = 0;
-    if (depth % 2 == 0) bestMove = -1000000; //The retval... else bestMove = 1000000000;
+    if (depth % 2 == 0) {
+      bestMove = -1000000; //The retval...
+    }
+    else {
+      bestMove = 1000000000;
+    }
     if (depth >= DEPTHLIMIT) {
       return rating;
     }
@@ -286,9 +288,9 @@ class BrainThread2 extends Thread {
     //stateChangedTo = 2;
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
+    thinking = false;
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
     moved = true;
-    thinking = false;
   }
   int quotient(int n, int d) {
     int ret = 0;
