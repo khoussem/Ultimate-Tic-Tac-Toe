@@ -1,3 +1,4 @@
+/* @pjs preload="Ex.png,Oh.gif"; */
 //Computer doesn't work at the moment
 //But mano-e-mano does!
 ///////////
@@ -17,13 +18,13 @@ Board board;
 boolean tester;
 boolean mouseRelease;
 boolean highLight=true;
+boolean boardWasWon = false;//Global variable for the computer, reset every time, hopefully in l1 cache
 int highLightNum = 5;
 int brainViewNum = 7;
 boolean brainView = true;
 ArrayList smalls;
 PImage Ex;
 PImage Oh;
-//aaron sucks elephant penis
 //Smalls is an length 81 array of each small square
 //Each biggerSquares is an object of a single larger
 //box, going left to right
@@ -58,7 +59,7 @@ int stateChangedto; //Holds the state of the variable change
 int gameState; //if != 0, game is won
 int [] bigstate = new int [10]; //Array containing the state of each big square
 int turn=1; //1 = X, 2 = O
-int bigSquarenow=0; //1-9, deciding where the next move must be
+int bigSquarenow=1; //1-9, deciding where the next move must be
 String [] rules;
 String [] moveExplain;
 void keyPressed()
@@ -479,7 +480,7 @@ void resetBoard()
 {
   gameState = 0;
   turn = 1;
-  bigSquarenow = 0;
+  bigSquarenow = 1;
   stateChangedto = 0;
   bigChanged = 0;
   smallChanged = 0;
@@ -859,7 +860,7 @@ void drawHighlight() {
   }
 }
 void draw()
-{
+{ 
   if (!menu)
   {
     //START OF TIC TAC TOE CODE

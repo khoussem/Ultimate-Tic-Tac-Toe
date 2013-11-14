@@ -193,6 +193,9 @@ public class newBigBoxRating {
         int val = likeliness[boxNums[0]] * likeliness[boxNums[1]] * likeliness[boxNums[2]];
         //println("DEBUG: Val: " + val);
         //So val is gonna be too big, but for now lets use it
+        if(val == 3375000) {
+          boardWasWon = true;
+        }
         value += val;
       }
       bigLikeliness[i] = value;//floor(log(value));

@@ -8,6 +8,8 @@ class BrainThread2 extends Thread {
   int [][] movePrefs;
   int [][] bigBoxRatings;
   int bestX, bestY;
+  int existedCount = 0;
+  int notExistedCount = 0;
   boolean last = false;
   boolean lastWasWon = false;
   //Might want to change this based upon the speed of our algorithm, maybe lower levels
@@ -46,11 +48,13 @@ class BrainThread2 extends Thread {
     //maxCall
     // if (bigSquarenow == 0) getRandomBox();
     /*for (int i = 0; i < 3; i++) {
-     for (int j = 0; j < 3; j++) {
-     rateMove(i, j);
-     }
-     }*/
+      for (int j = 0; j < 3; j++) {
+      rateMove(i, j);
+      }
+      }*/
     recursor(0, 0);
+    println("Tree usefulness: " + existedCount);
+    println("Uselessness: " + notExistedCount);
     if (startBSN != 0) bigSquarenow = startBSN;
     gameMakeMove(bestX, bestY);
     running = false;
@@ -65,7 +69,8 @@ class BrainThread2 extends Thread {
           max = movePrefs[i][j];
           moves = new ArrayList<PVector>();
           moves.add(new PVector(i, j));
-        } else if (movePrefs[i][j] == max) {
+        } 
+        else if (movePrefs[i][j] == max) {
           moves.add(new PVector(i, j));
         }
       }
@@ -79,7 +84,12 @@ class BrainThread2 extends Thread {
     if (bigSquarenow == 0) {
       // println(tabs + "Depth: " + depth);
       // println(tabs + "Big square now: " + bigSquarenow);
-      if (depth % 2 == 0) bestmove = -1000000; //The retval... else bestmove = 1000000000;
+      if (depth % 2 == 0) {
+        bestmove = -1000000000; //The retval... 
+      }
+      else {
+        bestmove = 1000000000;
+      }
       //DEPTHLIMIT++;
       int bestBig = 0;
       int myBestX = 0;
@@ -102,7 +112,8 @@ class BrainThread2 extends Thread {
             myBestX = bestX;
             myBestY = bestY;
           }
-        } else {
+        } 
+        else {
           if (tempRating < bestmove) {
             bestmove = tempRating;
             bestBig = tempBig;
@@ -114,14 +125,15 @@ class BrainThread2 extends Thread {
       if (depth == 0) {
         bestX = myBestX;
         bestY = myBestY;
-        println("Best x, y: " + bestX + ", " + bestY);
-        println("Best box... " + bestBig);
+        // println("Best x, y: " + bestX + ", " + bestY);
+        // println("Best box... " + bestBig);
       }
       //if(depth == 1) println("Best big: " + bestBig);
       bigSquarenow = bestBig;
       //DEPTHLIMIT--;
       //if(depth == 1) println("Best move: " + bestmove);
-    } else bestmove = rateTheBig(depth, rating);
+    } 
+    else bestmove = rateTheBig(depth, rating);
     //For now don't recurse...
     //println(tabs + "Best move: " + bestMove);
     //println(tabs + "BestX " + bestX + " bestY " + bestY);
@@ -145,16 +157,17 @@ class BrainThread2 extends Thread {
     }
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
+        int Bsn = bigSquarenow; //Store for later reproduction
         //println("BigSqNow: "  + bigSquarenow);
+        int afterMoveRating = 0;
         if (!board.possibleMove(i, j, bigSquarenow)) {
           //Need not adjust retval for this case, just continue
           //println(tabs + "i: " + i + " j: " + j + "Impossible move");
           continue;
         }
-        int Bsn = bigSquarenow; //Store for later reproduction
         makeMove(new PVector(i, j), turn); //Make the temp move on the board
         newBigBoxRating n = new newBigBoxRating(board, 1); //Init the position rating
-        int afterMoveRating = n.ratePosition(); //The rating after a move... If worse than 
+        afterMoveRating = n.ratePosition(); //The rating after a move... If worse than 
         boolean keepGoing = false;
         //If depth % 2 == 0 then
         //we just made a move for the computer
@@ -164,15 +177,23 @@ class BrainThread2 extends Thread {
           if (afterMoveRating > bestMove) {
             //This is gotten better for computer 
             keepGoing = true;
-          } else {
+          } 
+          else {
             //Otherwise our position declined...
             keepGoing = false;
           }
-        } else {
-          if (afterMoveRating < bestMove) keepGoing = true; else keepGoing = false;
+        } 
+        else {
+          if (afterMoveRating < bestMove) keepGoing = true; 
+          else keepGoing = false;
         }
         if (bigSquarenow == 0) lastWasWon = true;
         int r = afterMoveRating; //Make this bestMove
+        if(boardWasWon) {
+          keepGoing = false;
+          boardWasWon = false;
+        }
+        if(depth <= 2) keepGoing = true;
         if (keepGoing) r = recursor(depth + 1, afterMoveRating);
         //          if(keepGoing) println(tabs + "Returning from recursion");
         //          println(tabs + "Rating of i: " + i + " j: " + j + " is " + r);
@@ -189,7 +210,8 @@ class BrainThread2 extends Thread {
               bestY = j;
             }
           }
-        } else if (r < bestMove) {
+        } 
+        else if (r < bestMove) {
           if (depth == 0) {
             bestX = i;
             bestY = j;
@@ -212,19 +234,20 @@ class BrainThread2 extends Thread {
       //This move wins this box
       movePrefs[a][b] += 30; //For now though lets just increment
       nextBox = 0;
-    } else {
+    } 
+    else {
       if (board.big[bigSquarenow - 1].canBeWon(a, b, 1)) movePrefs[a][b] += 5; //Should multiply times opponents want of curr box
     }
     //Now lets subtract based upon what they can do in the next box
     /*
-    int max = 0;
-     if(nextBox == 0) {
-     for(int i = 1; i < 10; i++) {
-     int v = subtractNextBoxVal(i, 1);
-     if(v > max) max = v;
-     }
-     } else max = subtractNextBoxVal(nextBox, 1);
-     movePrefs[a][b] -= max; */
+       int max = 0;
+       if(nextBox == 0) {
+       for(int i = 1; i < 10; i++) {
+       int v = subtractNextBoxVal(i, 1);
+       if(v > max) max = v;
+       }
+       } else max = subtractNextBoxVal(nextBox, 1);
+       movePrefs[a][b] -= max; */
   }
   void getRandomBox() {
     ArrayList<Integer> possibles = new ArrayList<Integer>();
@@ -237,7 +260,7 @@ class BrainThread2 extends Thread {
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
-    if(bigstate[bigSquarenow] != 0) bigSquarenow = bigChanged;
+    if (bigstate[bigSquarenow] != 0) bigSquarenow = bigChanged;
   }
   void unMakeMove(PVector p, int bigNow) {
     if (bigstate[bigSquarenow] != 0) bigstate[bigSquarenow] = 0;
@@ -395,5 +418,6 @@ class BrainThread2 extends Thread {
     }
     return bestMove; //Will return 0 in a situation of a tie with no moves
   }
-}
+  }
+
 
