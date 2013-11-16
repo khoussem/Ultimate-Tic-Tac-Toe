@@ -102,6 +102,7 @@ class boardbigSquares {
       }
     }
   }
+  //Returns 0 if not won
   int winCheck()
   {
     if (boxes[0][0].state == boxes[1][0].state && boxes[1][0].state ==

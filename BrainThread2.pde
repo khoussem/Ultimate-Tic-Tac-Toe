@@ -95,13 +95,17 @@ class BrainThread2 extends Thread {
       //if(depth == 1) println("here we'are " + depth);
       for (int tempBig = 1; tempBig < 10; tempBig++) {
         if (bigstate[tempBig] != 0) continue;
+        /*for(int i = 1; i < 10; i++) {
+          if(depth == 0) println("STATES: " + i + " " + bigstate[i]);
+        }
         if (depth == 0) println("Tempbig: " + tempBig);
+        */
         bigSquarenow = tempBig;
         //println("Temp big: " + tempBig);
         //println("DEPTH!SADG: " + depth);
         int tempRating = rateTheBig(depth, rating);
         //if(tempRating == rating) println("Too deep: returning...");
-        if (depth == 0) println("Rating of the big: " + tempRating);
+        //if (depth == 0) println("Rating of the big: " + tempRating);
         //println(
         if (depth % 2 == 0) {
           if (tempRating > bestmove) {
@@ -123,8 +127,8 @@ class BrainThread2 extends Thread {
       if (depth == 0) {
         bestX = myBestX;
         bestY = myBestY;
-        println("Best x, y: " + bestX + ", " + bestY);
-        println("Best box... " + bestBig);
+        //println("Best x, y: " + bestX + ", " + bestY);
+        //println("Best box... " + bestBig);
       }
       //if(depth == 1) println("Best big: " + bestBig);
       bigSquarenow = bestBig;
@@ -137,7 +141,7 @@ class BrainThread2 extends Thread {
     //println(tabs + "BestX " + bestX + " bestY " + bestY);
     return bestmove;
   }
-  int rateTheBig(int depth, int rating) {
+  int rateTheBig(int depth, int rating) { 
     int depthInc = 0;
     if (lastWasWon && depth == DEPTHLIMIT) {
       depthInc++;
@@ -147,9 +151,10 @@ class BrainThread2 extends Thread {
     DEPTHLIMIT += depthInc;
     String tabs = "";
     for (int i = 0; i < depth; i++) tabs += '\t';
+    //if(bigstate[bigSquarenow] != 0) println(tabs + "invalid place" + bigSquarenow);
     int bestMove = 0;
     if (depth % 2 == 0) {
-      bestMove = -1000000; //The retval...
+      bestMove = -1000000000; //The retval...
     }
     else {
       bestMove = 1000000000;
@@ -193,11 +198,10 @@ class BrainThread2 extends Thread {
         int r = afterMoveRating; //Make this bestMove
         if(boardWasWon) {
           keepGoing = false;
-          boardWasWon = false;
         }
         if(depth <= 2) keepGoing = true;
         if (keepGoing) r = recursor(depth + 1, afterMoveRating);
-        //          if(keepGoing) println(tabs + "Returning from recursion");
+                //          if(keepGoing) println(tabs + "Returning from recursion");
         //          println(tabs + "Rating of i: " + i + " j: " + j + " is " + r);
         // println("Returning from recursion with depth: " + depth);
         //println("My i is: " + i + " my j is: " + j);
@@ -220,9 +224,18 @@ class BrainThread2 extends Thread {
           }
           bestMove = r;
         }
+        //This should never happen
+        //if(r == 1000000000) println("CURR BIG LOL: " + bigSquarenow);
+        //if(r == -1000000000) println("NEG CURR BIG LOL: " + bigSquarenow);
+
       }
     }
     DEPTHLIMIT -= depthInc;
+    boardWasWon = false;
+    /*if(depth == 0) { 
+      println("Best move: " + bestMove);
+      println("Best x, y: " + bestX + ", " + bestY);
+    }*/
     return bestMove;
   }
   void rateMove(int a, int b) {
@@ -259,13 +272,19 @@ class BrainThread2 extends Thread {
     bigSquarenow = possibles.get(floor(random(0, possibles.size())));
   }
   void makeMove(PVector p, int t) {
+    int temp = bigSquarenow;
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
-    if (bigstate[bigSquarenow] != 0) bigSquarenow = bigChanged;
+    if (bigstate[bigSquarenow] != 0) {
+      bigSquarenow = temp;
+    }
+    if(bigstate[temp] != 0) {
+      bigSquarenow = 0;
+    }
   }
   void unMakeMove(PVector p, int bigNow) {
-    if (bigstate[bigSquarenow] != 0) bigstate[bigSquarenow] = 0;
+    if (bigstate[bigNow] != 0) bigstate[bigNow] = 0;
     bigChanged = bigNow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).unTake();
@@ -273,8 +292,8 @@ class BrainThread2 extends Thread {
     turn = Utils.getOtherTurn(turn);
   }
   void gameMakeMove(int x, int y) {
-    println("Box: " + bigSquarenow);
-    println("X: " + x + " Y: " + y);
+    //println("Box: " + bigSquarenow);
+    //println("X: " + x + " Y: " + y);
     //newBigBoxRating n = new newBigBoxRating(board, 2);
     //println("Pre-move rating: " + n.ratePosition());
     //stateChangedTo = 2;

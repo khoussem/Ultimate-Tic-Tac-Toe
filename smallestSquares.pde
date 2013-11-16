@@ -70,6 +70,8 @@ class smallestSquares
     //Here is a test case to see if either the square you are
     //moving to, or the move you just played has filled a box
     //then the other player gets a freebee  
+    bigstate[bigChanged] = isBoxWon(bigChanged);
+    board.big[bigFinder(smallsquare) - 1].state = bigstate[bigChanged];
     if (bigstate[littletoBig(smallsquare)]!=0) bigSquarenow = //SPACE
     largersquare; else if (bigstate[bigFinder(smallsquare)]!=0) bigSquarenow = 0; else bigSquarenow = littletoBig(smallsquare);
     //This makes it so you move in the same square if
@@ -81,6 +83,7 @@ class smallestSquares
   void unTake() {
     state = 0;
     if (bigstate[littletoBig(smallsquare)] != 0) bigstate[littletoBig(smallsquare)] = 0;
+    board.big[bigFinder(smallsquare) - 1].state = 0;
   }
   void build() {
     move();

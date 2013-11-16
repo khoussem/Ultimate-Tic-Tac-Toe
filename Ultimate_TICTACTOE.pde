@@ -82,6 +82,11 @@ void keyReleased()
     println("Negative is X, Positive is O");
     println("Positional rating: " + rating);
   }
+  if (key == 'b') {
+      for(int i = 1; i < 10; i++) {
+          println("Bigstate: " + i + ": " + bigstate[i]);
+      }
+  }
 }
 void mouseReleased()
 {
@@ -286,6 +291,9 @@ int littletoBig(float num)
   if (quotientForme(num, 9.0)%3==0) return floor((num-1)%3)+7; else return 100;
   //the quotient for me is right bove, and the return
   //is pretty understandable
+}
+int isBoxWon(int bigNum) {
+    return board.big[bigNum - 1].winCheck();
 }
 int bigFinder(int num)
 {
