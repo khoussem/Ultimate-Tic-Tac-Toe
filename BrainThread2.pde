@@ -45,42 +45,22 @@ class BrainThread2 extends Thread {
     int startBSN = bigSquarenow;
     int depth = 0; //Our starting call for the depth of the recursion
     //Run our tree search in here
-    //maxCall
-    // if (bigSquarenow == 0) getRandomBox();
-    /*for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-      rateMove(i, j);
-      }
-      }*/
+    //We start of our recursion here: 
+    //this fills out bestX & bestY, and bestBox for freebees
     recursor(0, 0);
-    if (startBSN != 0) bigSquarenow = startBSN;
-    gameMakeMove(bestX, bestY);
+    if (startBSN != 0) bigSquarenow = startBSN; //Not sure if neccesary
+    gameMakeMove(bestX, bestY); //Make the best move
     running = false;
   }
-  PVector getBestMove() {
-    int max = 0;
-    ArrayList<PVector> moves = new ArrayList<PVector>();
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        //println("DEBUG: i: " + i + " j: " + j + " pref: " + movePrefs[i][j]);
-        if (movePrefs[i][j] > max) {
-          max = movePrefs[i][j];
-          moves = new ArrayList<PVector>();
-          moves.add(new PVector(i, j));
-        } 
-        else if (movePrefs[i][j] == max) {
-          moves.add(new PVector(i, j));
-        }
-      }
-    }
-    return moves.get(floor(random(0, moves.size())));
-  }
+  //Caller function for the recursion to deal with freebie case
   int recursor(int depth, int rating) {
     String tabs = "";
     for (int i = 0; i < depth; i++) tabs += "\t";
     int bestmove = 0;
+    //If we have a freebee, otherwise do a normal call
     if (bigSquarenow == 0) {
       //If board is won return the rating
+      //Can only be won if the last box was taken... therefore its in here
       if(board.gameFinished() != 0) return rating; 
       // println(tabs + "Depth: " + depth);
       // println(tabs + "Big square now: " + bigSquarenow);
@@ -90,24 +70,19 @@ class BrainThread2 extends Thread {
       else {
         bestmove = 1000000000;
       }
-      //DEPTHLIMIT++;
-      int bestBig = 0;
+      int bestBig = 0; //These three are only used if depth = 0
       int myBestX = 0;
       int myBestY = 0;
-      //if(depth == 1) println("here we'are " + depth);
+      //Loop through each possible big
       for (int tempBig = 1; tempBig < 10; tempBig++) {
-        if (board.big[tempBig - 1].state != 0) continue;
-        for(int i = 1; i < 10; i++) {
-          if(depth == 0) println("STATES: " + i + " " + bigstate[i]);
-        }
-        if (depth == 0) println("Tempbig: " + tempBig);
-        bigSquarenow = tempBig;
-        //println("Temp big: " + tempBig);
-        //println("DEPTH!SADG: " + depth);
-        int tempRating = rateTheBig(depth, rating);
-        //if(tempRating == rating) println("Too deep: returning...");
-        if (depth == 0) println("Rating of the big: " + tempRating);
-        //println(
+        if (board.big[tempBig - 1].state != 0) continue; //Doesn't work if we use bigstate[tempBig]...
+        //Can't figure out why, but anyways this works
+        bigSquarenow = tempBig; //Make each possible big our current big
+        int tempRating = rateTheBig(depth, rating); //And run our recursion on it...
+        //if (depth == 0) println("Rating of the big: " + tempRating);
+    
+        //Now we store the value in bestmove to find the best big to play in
+        //For min/max we see what our depth is (even or odd)
         if (depth % 2 == 0) {
           if (tempRating > bestmove) {
             bestmove = tempRating;
@@ -126,59 +101,61 @@ class BrainThread2 extends Thread {
         }
       }
       if (depth == 0) {
+        //This is the move we cant to make, so set our bestX and bestY
         bestX = myBestX;
         bestY = myBestY;
-        //println("Best x, y: " + bestX + ", " + bestY);
-        //println("Best box... " + bestBig);
       }
-      //if(depth == 1) println("Best big: " + bestBig);
       bigSquarenow = bestBig;
-      //DEPTHLIMIT--;
-      //if(depth == 1) println("Best move: " + bestmove);
     } 
+    //If its not a freebie simply call rateTheBig and return what we get
     else bestmove = rateTheBig(depth, rating);
-    //For now don't recurse...
     //println(tabs + "Best move: " + bestMove);
     //println(tabs + "BestX " + bestX + " bestY " + bestY);
     return bestmove;
   }
+  //This rates a position recursively
+  //Called by recursor
   int rateTheBig(int depth, int rating) { 
+    //If the last box was won (aka we have a freebee)
+    //this can significantly affect the value of thep position rating so go deeper
     int depthInc = 0;
     if (lastWasWon && depth == DEPTHLIMIT) {
       depthInc++;
-      //println(lastWasWon);
-      lastWasWon = false;
     }
+    lastWasWon = false; //only used above so now we reset it
     DEPTHLIMIT += depthInc;
-    String tabs = "";
-    for (int i = 0; i < depth; i++) tabs += '\t';
-    //if(bigstate[bigSquarenow] != 0) println(tabs + "invalid place" + bigSquarenow);
+    //tabs is for debugging attractiveness
+    //String tabs = "";
+    //for (int i = 0; i < depth; i++) tabs += '\t';
+
+    //Init bestMove so that any position will originally beat it
     int bestMove = 0;
     if (depth % 2 == 0) {
-      bestMove = -1000000000; //The retval...
+      bestMove = -1000000000; //We want to maximize so start at min
     }
     else {
-      bestMove = 1000000000;
+      bestMove = 1000000000; //We want to minimize so start at max
     }
+    //If we're too far just return...
     if (depth >= DEPTHLIMIT) {
       return rating;
     }
+    //Now loop through each possible move
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         int Bsn = bigSquarenow; //Store for later reproduction
-        //println("BigSqNow: "  + bigSquarenow);
+        //this is the positional rating of the position after the move is made
         int afterMoveRating = 0;
+        //If move is illegal...
         if (!board.possibleMove(i, j, bigSquarenow)) {
-          //Need not adjust retval for this case, just continue
-          //println(tabs + "i: " + i + " j: " + j + "Impossible move");
+          //Need not adjust retval for this case, just continue to next move
           continue;
         }
-        makeMove(new PVector(i, j), turn); //Make the temp move on the board
+        //Otherwise lets make the move
+        makeMove(new PVector(i, j), turn); 
         newBigBoxRating n = new newBigBoxRating(board, 1); //Init the position rating
-        afterMoveRating = n.ratePosition(); //The rating after a move... If worse than 
-        boolean keepGoing = false;
-        //If depth % 2 == 0 then
-        //we just made a move for the computer
+        afterMoveRating = n.ratePosition(); //The rating after a move...  
+        boolean keepGoing = false; //For pruning... 
         if (depth % 2 == 0) {
           //Therefore if the rating of the position we got
           //Is worse than the rating of the 
@@ -195,20 +172,18 @@ class BrainThread2 extends Thread {
           if (afterMoveRating < bestMove) keepGoing = true; 
           else keepGoing = false;
         }
-        if (bigSquarenow == 0) lastWasWon = true;
+        if (bigSquarenow == 0) lastWasWon = true; //lastWasWon is used for deepening search
         int r = afterMoveRating; //Make this bestMove
-        if(boardWasWon) {
-          keepGoing = false;
-        }
-        if(depth <= 2) keepGoing = true;
+
+        if(depth <= 2) keepGoing = true; //To find non-optimal starting moves that end up
+        //With great positions (akin to a sacrifice in chess)
+        //If we should keep search then let us
         if (keepGoing) r = recursor(depth + 1, afterMoveRating);
-                //          if(keepGoing) println(tabs + "Returning from recursion");
-        //          println(tabs + "Rating of i: " + i + " j: " + j + " is " + r);
-        // println("Returning from recursion with depth: " + depth);
-        //println("My i is: " + i + " my j is: " + j);
+        //Now reset the bigSquareNow
         bigSquarenow = Bsn;
-        unMakeMove(new PVector(i, j), Bsn);
+        unMakeMove(new PVector(i, j), Bsn); //And unmake the move
         bigSquarenow = Bsn;
+        //Appropriately set the bestMove
         if (depth % 2 == 0) {
           if ( r > bestMove) {
             bestMove = r;
@@ -232,54 +207,25 @@ class BrainThread2 extends Thread {
       }
     }
     DEPTHLIMIT -= depthInc;
-    boardWasWon = false;
     if(depth == 0) { 
       println("Best move: " + bestMove);
       println("Best x, y: " + bestX + ", " + bestY);
     }
     return bestMove;
   }
-  void rateMove(int a, int b) {
-    if (!board.possibleMove(a, b, bigSquarenow)) {
-      //println("DEBUG: bigSq: " + bigSqCurr + " not possible: " + (a + 3 * b));
-      movePrefs[a][b] = -4;
-      return;
-    }
-    int nextBox = 3 * b + a;
-    if (board.big[bigSquarenow - 1].canBeWon(a, b, 2)) {
-      //This move wins this box
-      movePrefs[a][b] += 30; //For now though lets just increment
-      nextBox = 0;
-    } 
-    else {
-      if (board.big[bigSquarenow - 1].canBeWon(a, b, 1)) movePrefs[a][b] += 5; //Should multiply times opponents want of curr box
-    }
-    //Now lets subtract based upon what they can do in the next box
-    /*
-       int max = 0;
-       if(nextBox == 0) {
-       for(int i = 1; i < 10; i++) {
-       int v = subtractNextBoxVal(i, 1);
-       if(v > max) max = v;
-       }
-       } else max = subtractNextBoxVal(nextBox, 1);
-       movePrefs[a][b] -= max; */
-  }
-  void getRandomBox() {
-    ArrayList<Integer> possibles = new ArrayList<Integer>();
-    for (int i = 0; i < 9; i++) {
-      if (board.big[i].state == 0) possibles.add(new Integer(i + 1));
-    }
-    bigSquarenow = possibles.get(floor(random(0, possibles.size())));
-  }
+  //Temporary make move
   void makeMove(PVector p, int t) {
-    int temp = bigSquarenow;
-    bigChanged = bigSquarenow;
+    int temp = bigSquarenow; //Store the bsn
+    bigChanged = bigSquarenow; //Set bigchanged, smallchanged
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
-    ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
+    ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker(); //this sets the smalls state
+    //smalls are held in board too...
+    //If we are sent to a taken box then we go back to original (this may be unnecessary and 
+    //dealt with in boxTaker()
     if (bigstate[bigSquarenow] != 0) {
       bigSquarenow = temp;
     }
+    //If we won the box make it be a freebie (also potentially unnecessary)
     if(bigstate[temp] != 0) {
       bigSquarenow = 0;
     }
@@ -287,23 +233,22 @@ class BrainThread2 extends Thread {
   void unMakeMove(PVector p, int bigNow) {
     bigChanged = bigNow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
-    ((smallestSquares) smalls.get(smallChanged - 1)).unTake();
+    ((smallestSquares) smalls.get(smallChanged - 1)).unTake(); //Deal with board.big.state in here
+                                                               //And the small boxes state
     changeMade = false;
-    turn = Utils.getOtherTurn(turn);
+    turn = Utils.getOtherTurn(turn); 
+    //Reset bigstate
     if (bigstate[bigNow] != 0) bigstate[bigNow] = 0;
   }
   void gameMakeMove(int x, int y) {
-    //println("Box: " + bigSquarenow);
-    //println("X: " + x + " Y: " + y);
-    //newBigBoxRating n = new newBigBoxRating(board, 2);
-    //println("Pre-move rating: " + n.ratePosition());
-    //stateChangedTo = 2;
+    //Basically the same as makeMove but we also set thinking to false and moved to true
     bigChanged = bigSquarenow;
     smallChanged = getSmallChanged(x, y);
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
     moved = true;
     thinking = false;
   }
+  //Vector form of the above
   void gameMakeMove(PVector p) {
     //stateChangedTo = 2;
     bigChanged = bigSquarenow;
@@ -312,6 +257,7 @@ class BrainThread2 extends Thread {
     ((smallestSquares) smalls.get(smallChanged - 1)).boxTaker();
     moved = true;
   }
+  //Two helper functions...
   int quotient(int n, int d) {
     int ret = 0;
     while (d <= n) {
@@ -325,14 +271,5 @@ class BrainThread2 extends Thread {
     ret += (3 * ((bigChanged + 2) % 3)) + a;
     ret += (quotient(bigChanged - 1, 3)) * 27 + b * 9;
     return ret;
-  }
-  PVector getRandomMove() {
-    boardbigSquares now = board.big[bigSquarenow-1];
-    int r = 0;
-    while (true) {
-      r = floor(random(0, 9));
-      if ( now.isValid(r) ) break;
-    }
-    return new PVector(Utils.getX(r), Utils.getY(r));
   }
 }
