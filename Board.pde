@@ -49,6 +49,7 @@ class Board {
  int gameFinished() { 
  //Returns who won
  //Horizontal cases
+ for(int i = 0; i < 9; i++) bigStates[i + 1] = big[i].state;
  if(bigStates[1] == bigStates[2] && bigStates[2]==bigStates[3]) {
   return bigStates[1]; 
  }

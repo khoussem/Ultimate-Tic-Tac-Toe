@@ -80,6 +80,8 @@ class BrainThread2 extends Thread {
     for (int i = 0; i < depth; i++) tabs += "\t";
     int bestmove = 0;
     if (bigSquarenow == 0) {
+      //If board is won return the rating
+      if(board.gameFinished() != 0) return rating; 
       // println(tabs + "Depth: " + depth);
       // println(tabs + "Big square now: " + bigSquarenow);
       if (depth % 2 == 0) {
@@ -94,18 +96,17 @@ class BrainThread2 extends Thread {
       int myBestY = 0;
       //if(depth == 1) println("here we'are " + depth);
       for (int tempBig = 1; tempBig < 10; tempBig++) {
-        if (bigstate[tempBig] != 0) continue;
-        /*for(int i = 1; i < 10; i++) {
+        if (board.big[tempBig - 1].state != 0) continue;
+        for(int i = 1; i < 10; i++) {
           if(depth == 0) println("STATES: " + i + " " + bigstate[i]);
         }
         if (depth == 0) println("Tempbig: " + tempBig);
-        */
         bigSquarenow = tempBig;
         //println("Temp big: " + tempBig);
         //println("DEPTH!SADG: " + depth);
         int tempRating = rateTheBig(depth, rating);
         //if(tempRating == rating) println("Too deep: returning...");
-        //if (depth == 0) println("Rating of the big: " + tempRating);
+        if (depth == 0) println("Rating of the big: " + tempRating);
         //println(
         if (depth % 2 == 0) {
           if (tempRating > bestmove) {
@@ -232,10 +233,10 @@ class BrainThread2 extends Thread {
     }
     DEPTHLIMIT -= depthInc;
     boardWasWon = false;
-    /*if(depth == 0) { 
+    if(depth == 0) { 
       println("Best move: " + bestMove);
       println("Best x, y: " + bestX + ", " + bestY);
-    }*/
+    }
     return bestMove;
   }
   void rateMove(int a, int b) {
@@ -284,12 +285,12 @@ class BrainThread2 extends Thread {
     }
   }
   void unMakeMove(PVector p, int bigNow) {
-    if (bigstate[bigNow] != 0) bigstate[bigNow] = 0;
     bigChanged = bigNow;
     smallChanged = getSmallChanged((int) p.x, (int) p.y);
     ((smallestSquares) smalls.get(smallChanged - 1)).unTake();
     changeMade = false;
     turn = Utils.getOtherTurn(turn);
+    if (bigstate[bigNow] != 0) bigstate[bigNow] = 0;
   }
   void gameMakeMove(int x, int y) {
     //println("Box: " + bigSquarenow);
@@ -334,111 +335,4 @@ class BrainThread2 extends Thread {
     }
     return new PVector(Utils.getX(r), Utils.getY(r));
   }
-  /* Functions declared below
-   * possibleMove(move, &board): finds if move is possible
-   * gameDone(&board) could make board.done boolean: says if board is finished
-   * makeMove(takes move and board (not pass by reference) and makes the move
-   * positionJudge(&board) judges board at final position.
-   */
-  //Max is the search for computers main brain
-  int maxCall(Board board, int _alpha, int _beta, int squareNow, int depth) {
-    //Base case/break code
-    int moveReturn = 0;
-    board.turn = 2;
-    if (depth > DEPTHLIMIT || board.gameDone()) return board.positionJudge(squareNow); //Heuristic approximation of board
-    int bestMove = 0; //Will hold our best move
-    //Code to deal with freebee case
-    if (squareNow == 0) {
-      for (int i=1; i<10; i++) {
-        //Here we just recall minCall for each possible squareNow, without changing the board
-        int moveHold = maxCall(board, _alpha, _beta, i, depth + 1); //Increment depth so that we 
-        if (moveHold > bestMove) {                                  //Compensate for broader search
-          //Here we just are doing the same thing as below
-          bestMove = moveHold;
-          _alpha = bestMove;
-        }
-        if (_beta > _alpha) {
-          //And here of course is the pruning
-          return bestMove;
-        }
-      }
-    }
-    //The above code will take you here in the next recursion
-    //If it is not a freebee than ignore above code else {
-    //Loop through each possible move
-    for (int i = 1; i < 10; i++) { 
-      //First make sure its possible, if not just move on to next case
-      if (board.onePossibleMove(i, squareNow)) {
-        board.makeMove(i, squareNow);
-        int moveHolder = minCall(board, _alpha, _beta, board.nextSquare, depth + 1); //This holds the value of the current move, minmove returns a value
-        board.turn = 2; //Keep track of the turn for min versus max
-        board.unmakeMove(i, squareNow);
-        //If this move is better, than we replace the other one
-        if (moveHolder > bestMove) {
-          moveReturn = i;
-          bestMove = moveHolder;
-          _alpha = bestMove; //Then we make alpha to be our best move
-        }
-        if (_beta > _alpha) {
-          //If our opponents best move 
-          if (depth == 0) {
-            return moveReturn;
-          }
-          return bestMove;
-        }
-      }
-    }
-    if (depth == 0) {
-      return moveReturn;
-    }
-    return bestMove;
-  }
-  //min is the search for the opponent of the computer
-  int minCall(Board board, int _alpha, int _beta, int squareNow, int depth) {
-    //Base case/break code
-    board.turn = 1;
-    if (depth > DEPTHLIMIT || board.gameDone()) return board.positionJudge(squareNow); //Heuristic approximation of board
-    int bestMove = 0; //Will hold our best move
-    //Code to deal with freebee case
-    if (squareNow == 0) {
-      for (int i=1; i<10; i++) {
-        //Here we just recall minCall for each possible squareNow, without changing the board
-        int moveHold = minCall(board, _alpha, _beta, i, depth + 1); //Increment depth so that we 
-        if (moveHold > bestMove) {                                  //Compensate for broader search
-          //Here we just are doing the same thing as below
-          bestMove = moveHold;
-          _beta = bestMove;
-        }
-        if (_alpha > _beta) {
-          //And here of course is the pruning
-          return bestMove;
-        }
-      }
-    }
-    //The above code will take you here in the next recursion
-    //If it is not a freebee than ignore above code else {
-    //Loop through each possible move
-    for (int i = 1; i < 10; i++) {
-      //First make sure its possible, if not just move on to next case
-      if (board.onePossibleMove(i, squareNow)) {
-        board.makeMove(i, squareNow);
-        int moveHolder = maxCall(board, _alpha, _beta, board.nextSquare, depth + 1); //This holds the value of the current move, maxmove returns a value
-        board.turn = 1;
-        board.unmakeMove(i, squareNow);
-        //If this move is better, than we replace the other one
-        if (moveHolder > bestMove) {
-          bestMove = moveHolder;
-          _beta = bestMove; //Then we make beta to be our best move
-        }
-        if (_alpha > _beta) {
-          //If our opponent has an opportunity to play a better move,
-          //they will never go down this path
-          return bestMove;
-        }
-      }
-    }
-    return bestMove; //Will return 0 in a situation of a tie with no moves
-  }
-  }
-
-
+}

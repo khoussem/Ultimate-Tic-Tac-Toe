@@ -82,6 +82,9 @@ void keyReleased()
     println("Negative is X, Positive is O");
     println("Positional rating: " + rating);
   }
+  if (key == 'm') {
+      menu = true;
+  }
   if (key == 'b') {
       for(int i = 1; i < 10; i++) {
           println("Bigstate: " + i + ": " + bigstate[i]);
