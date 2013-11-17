@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 //Recursive solutions are us
 class BrainThread2 extends Thread {
   Board board = new Board();
